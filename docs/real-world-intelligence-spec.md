@@ -1,36 +1,55 @@
-# Real-World Intelligence Agent Specification
+# Real-World Intelligence Agent — unified V1 specification
 
-## Purpose
+## Product objective
 
-NexaSupply is fictional. The agent monitors external supply-chain information and produces evidence-backed proposals for a simulation. It must never state that NexaSupply or fictional suppliers were actually affected by real incidents.
+A dedicated NexaSupply agent monitors real-world supply-chain developments, validates external information, and converts relevant evidence into strictly hypothetical synthetic proposals for the fictional NexaSupply simulation. The agent never asserts real-world exposure of NexaSupply or fictional suppliers.
 
-## Mandatory separation
+## Required labels and semantic boundaries
 
-Every record and report distinguishes:
+- `REAL-WORLD SOURCE`: external reference metadata.
+- `VERIFIED FACT`: an individually supported claim, with source and confidence attached.
+- `POTENTIAL BUSINESS IMPLICATION`: analytical inference, not a fact.
+- `HYPOTHETICAL EXPOSURE`: explicit simulation assumption about a fictional entity.
+- `SYNTHETIC EVENT`: parameters authored for the simulator.
+- `SIMULATED IMPACT`: outcome emitted by the deterministic simulation event engine.
 
-1. `REAL_WORLD_EVENT` — an event reported outside NexaSupply.
-2. `VERIFIED_FACT` — a claim supported by retained source metadata and validation.
-3. `POTENTIAL_BUSINESS_IMPLICATION` — an analytical interpretation.
-4. `HYPOTHETICAL_NEXASUPPLY_EXPOSURE` — a simulation assumption, not a real impact.
-5. `SYNTHETIC_EVENT` — parameters generated for the simulation.
-6. `SIMULATED_IMPACT` — deterministic consequences inside the fictional environment.
+A real event does not automatically imply fictional exposure; exposure analysis must disclose its assumptions and uncertainty.
 
-## Modes
+## Research sources and provider rules
 
-- **Research Only:** research, normalization, validation, and classification only.
-- **Controlled Intelligence (default):** scenario proposals may enter review; high-impact or low-confidence proposals require COO review.
-- **Full Simulation Autonomy:** only explicitly authorized low-risk proposals can be applied.
+Configurable provider adapters may cover news search, RSS, official company newsrooms, government and regulator publications, port/transport organizations, World Bank, OECD, UNCTAD, industry publications, and reputable international news. Prefer primary and authoritative sources. Do not infer verification from a search snippet or headline. Retain URLs, publisher/title, timestamps, compact factual summaries, and extracted claims; do not retain full copyrighted articles. Follow source terms, rate limits, and robots/access rules; do not bypass access controls.
 
-The agent never directly changes inventory, creates real supplier orders, contacts real companies, sends customer messages, or executes financial transactions. Only the event engine and deterministic business services apply simulation changes.
+Provider methods are replaceable behind a stable protocol: `search_recent_events`, `fetch_source_details`, `normalize_source`, `verify_event_claims`, `classify_supply_chain_event`.
 
-## Provider layer
+When no live provider is configured, use the local case library and visibly mark every output `OFFLINE INTELLIGENCE MODE`. Offline templates are not current-event reports.
 
-Providers implement replaceable contracts for recent-event search, source-detail retrieval, normalization, claim verification, and event classification. Primary sources are preferred. The system stores metadata, URLs, short summaries, and extracted claims—not complete copyrighted articles. Access rules and robots restrictions must be respected.
+## Modes and controls
 
-If no provider is configured, a local historical case library is used and all outputs are labeled `OFFLINE INTELLIGENCE MODE`.
+- Mode A `RESEARCH_ONLY`: gather, normalize, validate, classify, and report; never apply scenarios.
+- Mode B `CONTROLLED_INTELLIGENCE` (default): scenario proposals require review for high impact or low confidence; approved scenarios may be dispatched only through the simulation event engine.
+- Mode C `FULL_SIMULATION_AUTONOMY`: only expressly policy-authorized low-risk synthetic scenarios may proceed without review. It does not authorize real-world actions.
 
-## Workflow
+Any high-impact or low-confidence proposal requires explicit COO review. Research code must never directly update inventory, create real orders, contact suppliers, send customer communications, or execute financial transactions.
 
-`Scan → Evidence Validation → Event Classification → Exposure Analysis → Scenario Proposal → COO Review → Event Engine → Specialist Agents → Simulated Operations → Audit Agent → Daily Report`
+## End-to-end workflow
 
-The scan is designed for one run per real-world calendar day at 06:00 Europe/Berlin by default. Scan state is explicit and persistable. Daily reports use `reports/intelligence/YYYY-MM-DD.md` plus a machine-readable JSON report.
+`Real-World Intelligence Scan → Evidence Validation → Event Classification → Company Exposure Analysis → Scenario Proposal → COO Review → Event Engine → Specialist Agents → Simulated Business Operations → Audit Agent → Daily Report`
+
+The repository foundation currently implements the provider adapter contract, metadata validation, evidence score, typed event/proposal models, safe proposal and review gates, SQLite scan/report persistence, offline fallback, and report rendering. Exposure analysis, host event-engine integration, specialist-agent dispatch, dashboard, authenticated COO workflow, durable production audit integration, and external live provider adapters remain host integration work.
+
+## Schedule, reports, and persistence
+
+Default schedule: once per real-world calendar day at 06:00 `Europe/Berlin`. The SQLite development store enforces unique scan dates and persists scan states/reports. Production schema is documented separately; production must use reviewed migrations, retention policy, concurrency controls, authentication, and authorization.
+
+Daily outputs: `reports/intelligence/YYYY-MM-DD.md` plus machine-readable JSON. Reports must state mode, source/evidence, uncertainties, implications, hypothetical assumptions, synthetic parameters, review state, and simulation-only impacts. Never describe a proposal as an applied impact before the event engine confirms it.
+
+## V1 completion criteria
+
+1. Provider failures fall back cleanly and are explicitly labeled offline.
+2. Every external factual claim is traceable to a source record; unsupported claims remain unverified.
+3. Every proposal is explicitly hypothetical and synthetic.
+4. High-risk/low-confidence proposals cannot bypass review.
+5. Only the injected event engine can apply a simulation event.
+6. Scan state, daily uniqueness, and report payloads persist.
+7. Reports cannot conflate real-world events with simulated consequences.
+8. Automated tests and CI pass before merge or deployment.
