@@ -1,17 +1,20 @@
+"""Local historical case templates for explicit offline operation."""
+
+from datetime import datetime, timezone
+
 from .models import EventCategory, IntelligenceEvent
-from .providers import IntelligenceProvider, SourceRecord
+from .providers import SourceRecord
 
 OFFLINE_MODE_LABEL = "OFFLINE INTELLIGENCE MODE"
 
-# Small, immutable starter fixtures. Expand with reviewed public case references
-# and synthetic examples; do not store full copyrighted article text here.
+# Starter scenario templates, not claims about current events.
 HISTORICAL_CASE_LIBRARY: tuple[IntelligenceEvent, ...] = (
     IntelligenceEvent(
         event_id="offline-port-congestion-template",
         title="Historical port congestion case template",
         category=EventCategory.PORT_DISRUPTION,
         occurred_at=None,
-        discovered_at=__import__("datetime").datetime(2024, 1, 1, tzinfo=__import__("datetime").timezone.utc),
+        discovered_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         source_urls=("offline:historical-port-congestion-template",),
         summary="Offline template: assess hypothetical lead-time and routing sensitivity. This is not a live event report.",
         offline=True,
@@ -21,7 +24,7 @@ HISTORICAL_CASE_LIBRARY: tuple[IntelligenceEvent, ...] = (
         title="Historical severe-weather disruption case template",
         category=EventCategory.NATURAL_HAZARD,
         occurred_at=None,
-        discovered_at=__import__("datetime").datetime(2024, 1, 1, tzinfo=__import__("datetime").timezone.utc),
+        discovered_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
         source_urls=("offline:historical-weather-disruption-template",),
         summary="Offline template: evaluate hypothetical transport continuity under severe weather. Not a current incident.",
         offline=True,
@@ -38,6 +41,8 @@ class OfflineIntelligenceProvider:
     """Fallback adapter; never claims live search or current verification."""
 
     def search_recent_events(self, *, query, since):
+        del since  # Offline templates have no live publication time to filter.
+        normalized_query = query.casefold()
         return [
             SourceRecord(
                 url=case.source_urls[0],
@@ -48,7 +53,9 @@ class OfflineIntelligenceProvider:
                 is_primary=False,
             )
             for case in offline_cases()
-            if query.lower() in case.title.lower() or query.lower() in case.category.value.lower()
+            if normalized_query in case.title.casefold()
+            or normalized_query in case.category.value.casefold()
+            or normalized_query in "supply chain"
         ]
 
     def fetch_source_details(self, *, url):
@@ -61,7 +68,9 @@ class OfflineIntelligenceProvider:
         return source
 
     def verify_event_claims(self, sources):
+        del sources
         return False
 
     def classify_supply_chain_event(self, sources):
+        del sources
         return "OFFLINE_TEMPLATE"
